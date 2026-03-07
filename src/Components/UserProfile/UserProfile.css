@@ -1,0 +1,12 @@
+.userprofile-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 80%;
+}
+
+.userprofile-container .userprofile-photo{
+    color: #ff0000;
+}

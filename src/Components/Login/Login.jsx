@@ -1,6 +1,7 @@
 import { useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import "./Login.css";
 
 const Login = () => {
 
@@ -30,7 +31,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const isValidInputs = email && password && (!isRegister || username)
-    const reuestUrl = isRegister ? "http://127.0.0.1:5000/users" : "http://127.0.0.1:5000/user/login";
+    const reuestUrl = isRegister ? "http://127.0.0.1:5000/user/register" : "http://127.0.0.1:5000/user/login";
     let requestPayload = {
       "email": email,
       "password": password,
@@ -49,7 +50,10 @@ const Login = () => {
       .then(res => {
         let response = res.data;
         if (response.meta.success) {
-          navigate('/dashboard')
+            setIsRegister(!isRegister)
+            navigate('/dashboard') 
+            const profilename = response.data.user.username.toUpperCase();
+          localStorage.setItem("profilename", profilename);
         } else {
           setError(response.meta.message)
         }
@@ -73,11 +77,11 @@ const Login = () => {
       <form onSubmit={handleSubmit} className="login-form">
         {isRegister &&
           <div>
-            <label for="username">Username</label>
+            <label for="username">Full Name</label>
             <input
-              className="input"
+              className="input text-black"
               id='username'
-              placeholder="Enter username"
+              placeholder="Enter full name"
               name="username"
               value={username}
               onChange={handleChange} />
@@ -86,7 +90,7 @@ const Login = () => {
         <div>
           <label for="email">Email</label>
           <input
-            className="input text-blue-600"
+            className="input"
             id='email'
             placeholder="Enter email"
             name="email"

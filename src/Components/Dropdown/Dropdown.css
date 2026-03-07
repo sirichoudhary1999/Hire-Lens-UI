@@ -1,0 +1,30 @@
+.dropdown-menu {
+  background-color: var(--dropdown-bg, white);
+  border: 1px solid var(--dropdown-border, #ccc);
+  min-width: 180px;
+  border-radius: 4px;
+  padding: 0.5rem 0;
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: var(--button-bg, white);
+  color: var(--button-color, black);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.dropdown-menu button:hover {
+  background-color: var(--button-hover-bg, #f0f0f0);
+  color: var(--button-hover-color, black);
+}
+
+.dropdown-menu button span.icon {
+  color: var(--icon-color, currentColor);
+}

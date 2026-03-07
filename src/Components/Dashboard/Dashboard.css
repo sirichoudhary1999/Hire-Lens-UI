@@ -1,0 +1,46 @@
+/* Full page container */
+.dashboard-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 24px 40px;
+}
+
+/* Top right profile icon */
+.header-container  {
+  height: 70px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 20px 40px 0 40px;
+  gap: 8px;
+}
+
+/* Profile icon styling */
+.profile-icon {
+  cursor: pointer;
+  color: #1e3a8a;
+  height: 36px;
+  width: 36px;
+}
+
+/* Tile section */
+.tile-wrapper {
+  display: flex;
+  gap: 32px;
+  padding: 60px 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.profile-title {
+    color: black;
+}
+
+.profile-btn {
+  background-color: white;
+  color :black;
+  font-weight: 600;
+}
+
