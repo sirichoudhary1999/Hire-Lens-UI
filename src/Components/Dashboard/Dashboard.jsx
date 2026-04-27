@@ -17,7 +17,7 @@ const Dashboard = () => {
   };
 
   const handleUpdateProfile = () => {
-    navigate('/updateProfile');
+    navigate('/profile/update');
   };
 
   return (
@@ -53,14 +53,14 @@ const Dashboard = () => {
       </div>
       <div className="tile-wrapper">
         <Tile
-          title="Resume Edit"
+          title="Resume"
           description="Edit resume with or without Job Description"
           icon={<FaFileAlt />}
-          onClick={() => navigate("/edit-resume")}
+          onClick={() => navigate("/resume")}
         />
 
         <Tile
-          title="Job Tracker"
+          title="Jobs"
           description="Manage and track job applications"
           icon={<FaBriefcase />}
           onClick={() => navigate("/jobs")}
@@ -69,7 +69,7 @@ const Dashboard = () => {
           title="Interview Prep"
           description="Prepare for interviews with plan and tracker"
           icon={<FaComments />}
-          onClick={() => navigate("/interview-prep")}
+          onClick={() => navigate("/interview")}
         />
       </div>
     </div>

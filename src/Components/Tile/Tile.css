@@ -1,6 +1,7 @@
 .tile {
-  width: 300px;
-  height: 180px;
+  flex: 1 1 250px;   /* grows, shrinks, base width */
+  min-width: 220px;  /* prevents too small */
+  max-width: 300px;  /* prevents too large */
   background: #ffffff;
   border-radius: 16px;
   padding: 24px;
@@ -23,13 +24,19 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
+  color: #4f46e5;
+}
+
+.tile-icon svg {
+  width: 26px;
+  height: 26px;
 }
 
 .tile-title {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #6b7280;
+  color: #111827;
 }
 
 .tile-description {
