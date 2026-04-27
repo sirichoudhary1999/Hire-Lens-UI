@@ -50,9 +50,10 @@ const Login = () => {
       .then(res => {
         let response = res.data;
         if (response.meta.success) {
-            setIsRegister(!isRegister)
-            navigate('/dashboard') 
-            const profilename = response.data.user.username.toUpperCase();
+          setIsRegister(!isRegister)
+          navigate('/dashboard')
+          const profilename = response.data.user.username.toUpperCase();
+          localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("profilename", profilename);
         } else {
           setError(response.meta.message)
@@ -60,7 +61,7 @@ const Login = () => {
       })
       .catch(err => {
         console.log("error", err)
-        alert("error")
+        alert(err.response?.data?.msg || "Something went wrong!");
       })
 
   };
@@ -77,7 +78,7 @@ const Login = () => {
       <form onSubmit={handleSubmit} className="login-form">
         {isRegister &&
           <div>
-            <label for="username">Full Name</label>
+            <label htmlFor="username">Full Name</label>
             <input
               className="input text-black"
               id='username'
@@ -88,7 +89,7 @@ const Login = () => {
           </div>
         }
         <div>
-          <label for="email">Email</label>
+          <label htmlFor="email">Email</label>
           <input
             className="input"
             id='email'
@@ -99,7 +100,7 @@ const Login = () => {
           />
         </div>
         <div>
-          <label for="password">Password</label>
+          <label htmlFor="password">Password</label>
           <input
             className="input"
             placeholder="Enter password"
