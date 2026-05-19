@@ -1,0 +1,162 @@
+  .jobtracker-container {
+    min-height: 100vh;
+    width: 80%;
+  }
+
+  .jobtracker-tile {
+    width: 220px;
+  }
+
+  .add-job-container {
+    width: 50%;
+    padding: 32px;
+  }
+
+  .add-job-container h2 {
+    color: black;
+    font-weight: 700;
+  }
+
+  .add-job-container .add-job-header {
+    font-size: larger;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .add-job-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .add-job-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group label {
+    margin: 0 16px;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+  }
+
+  .add-job-form input,
+  .add-job-form select,
+  .add-job-form textarea {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+  }
+
+  .add-job-form label {
+    font-weight: 600;
+    color: black;
+  }
+
+  .add-job-form textarea {
+    min-height: 80px;
+  }
+
+  .add-job-form .button-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .view-job .button-group {
+    margin-bottom: 16px;
+  }
+
+  .view-job .add-new-job {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin: 0 auto 16px 0;
+  }
+
+  .add-job-form button, .view-job button {
+    padding: 12px;
+    min-width: 120px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .add-job-form button:hover, .view-job button {
+    background: #1d4ed8;
+  }
+
+  .view-job .button-group {
+    margin-top: 32px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .jobtracker-container .job-header {
+    font-size: xx-large;
+    color: black;
+  }
+  /* Actions container */
+  .view-job .table-actions {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .view-job .icon {
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.2s ease;
+  }
+
+  .view-job .icon.edit {
+    color: #2563eb;
+  }
+
+  .view-job .icon.delete {
+    color: #ef4444;
+  }
+
+  .view-job .icon:hover {
+    transform: scale(1.2);
+  }
+
+.view-job .column-filter {
+  width: 90%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.view-job .column-filter:focus {
+  border-color: #2563eb;
+}
+
+.feature-footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.feature-footer-actions button,
+.view-job .button-group button,
+.add-job-form .button-group button {
+  min-width: 140px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

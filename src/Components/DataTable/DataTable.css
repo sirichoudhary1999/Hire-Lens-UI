@@ -1,0 +1,44 @@
+/* Container */
+.table-container {
+  width: 100%;
+  margin: 40px auto 0 auto; 
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  font-size: 16px;
+}
+
+/* Header */
+.data-table th {
+  background-color: #f3f4f6;
+  color: #111827;
+  padding: 14px 16px;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Cells */
+.data-table td {
+  padding: 14px 16px;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table .row-data {
+    text-align: left;
+
+}
+
+/* Row hover */
+.data-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.no-data {
+  text-align: center;
+}

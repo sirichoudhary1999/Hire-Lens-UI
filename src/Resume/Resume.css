@@ -1,0 +1,85 @@
+.resume-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.resume-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.resume-header h1 {
+  font-size: 2.5rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.resume-header p {
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.resume-tiles {
+  display: flex;
+  /* grid-template-row: repeat(auto-fit, minmax(300px, 1fr)); */
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.resume-footer-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.resume-footer-actions .nav-btn {
+  border: none;
+  border-radius: 8px;
+  min-width: 140px;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resume-footer-actions .home-btn {
+  background-color: #2563eb;
+}
+
+.resume-footer-actions .home-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.resume-footer-actions .cancel-btn {
+  background-color: #64748b;
+}
+
+.resume-footer-actions .cancel-btn:hover {
+  background-color: #475569;
+}
+
+@media (max-width: 768px) {
+  .resume-container {
+    padding: 1rem;
+  }
+
+  .resume-header h1 {
+    font-size: 2rem;
+  }
+
+  .resume-tiles {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .resume-footer-actions {
+    flex-direction: column;
+  }
+}
