@@ -7,7 +7,6 @@ import AddJob from "./JobTracker/JobOperations/AddorUpdateJob.jsx";
 import ViewJobs from "./JobTracker/JobOperations/ViewJob.jsx";
 import JobAnalytics from "./JobTracker/JobOperations/JobAnalytics.jsx";
 import JobSearch from "./JobTracker/JobOperations/JobSearch.jsx";
-import Resume from "./Resume/Resume.jsx";
 import UploadResume from "./Resume/ResumeOperations/UploadResume.jsx";
 import ViewResumes from "./Resume/ResumeOperations/ViewResumes.jsx";
 import ViewResumeDetail from "./Resume/ResumeOperations/ViewResumeDetail.jsx";
@@ -24,12 +23,12 @@ const App = () => {
         <Route path='/login' element={<Login />}/>
         <Route path='/dashboard' element={<Dashboard />}/>
         <Route path='/profile/update' element={<UserProfile />}/>
-        <Route path="/jobs" element={<Navigate to="/jobs/add" replace />} />
+        <Route path="/jobs" element={<Navigate to="/jobs/view" replace />} />
         <Route path="/jobs/add" element={<AddJob />} />
         <Route path="/jobs/view" element={<ViewJobs/>}/>
         <Route path="/jobs/analytics" element={<JobAnalytics/>}/>
         <Route path="/jobs/search" element={<JobSearch/>}/>
-        <Route path="/resume" element={<Resume />} />
+        <Route path="/resume" element={<Navigate to="/resume/view" replace />} />
         <Route path="/resume/upload" element={<UploadResume />} />
         <Route path="/resume/view" element={<ViewResumes />} />
         <Route path="/resume/view/:resumeId" element={<ViewResumeDetail />} />

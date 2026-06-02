@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_BASE } from '../../utils/api';
+
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import './ViewResumeDetail.css';
-
-const API_BASE = 'http://127.0.0.1:5000';
 
 const ViewResumeDetail = () => {
   const { resumeId } = useParams();
@@ -96,7 +95,7 @@ const ViewResumeDetail = () => {
 
     for (const url of candidateUrls) {
       try {
-        const response = await axios.get(url, {
+        const response = await api.get(url, {
           headers: {
             Authorization: `Bearer ${token}`
           },
@@ -143,7 +142,7 @@ const ViewResumeDetail = () => {
   const fetchResume = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get(`http://127.0.0.1:5000/resume/${resumeId}`, {
+      const response = await api.get(`/resume/${resumeId}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -175,7 +174,7 @@ const ViewResumeDetail = () => {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get(`${API_BASE}/resume/download/${resumeId}`, {
+      const response = await api.get(`${API_BASE}/resume/download/${resumeId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -220,7 +219,7 @@ const ViewResumeDetail = () => {
       let isDeleted = false;
       for (const endpoint of deleteEndpoints) {
         try {
-          const response = await axios.delete(endpoint, {
+          const response = await api.delete(endpoint, {
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -252,6 +251,10 @@ const ViewResumeDetail = () => {
     }
   };
 
+  const pdfViewerSrc = pdfPreviewUrl
+    ? `${pdfPreviewUrl}#toolbar=1&navpanes=0&scrollbar=0&zoom=page-width`
+    : '';
+
   if (loading) {
     return <div className="loading">Loading resume...</div>;
   }
@@ -278,8 +281,9 @@ const ViewResumeDetail = () => {
         ) : (
           <iframe
             title="Resume PDF Preview"
-            src={pdfPreviewUrl}
+            src={pdfViewerSrc}
             className="resume-pdf-frame"
+            allowFullScreen
           />
         )}
       </div>

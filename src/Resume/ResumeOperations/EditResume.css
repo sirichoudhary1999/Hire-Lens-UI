@@ -1,7 +1,6 @@
 .edit-resume-container {
   padding: 2rem;
-  width: 80vw;
-  max-width: 1400px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -357,27 +356,6 @@
   background: #e2e8f0;
 }
 
-.structured-item-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #f8fafc;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.structured-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.structured-item-header h4 {
-  margin: 0;
-  font-size: 1rem;
-  color: #1e293b;
-}
-
 .resume-preview {
   margin: 1.5rem 0;
   padding: 1rem;
@@ -409,10 +387,6 @@
 }
 
 @media (max-width: 768px) {
-  .edit-resume-container {
-    width: 100%;
-  }
-
   .custom-field-row {
     grid-template-columns: 1fr;
   }

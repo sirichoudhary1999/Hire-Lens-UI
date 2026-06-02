@@ -2,7 +2,7 @@ import { useReactTable, getCoreRowModel, flexRender, getFilteredRowModel, getSor
 import "./DataTable.css"
 import { useState } from "react";
 
-const DataTable = ({ columns, data }) => {
+const DataTable = ({ columns, data, onRowClick }) => {
   const [columnFilters, setColumnFilters] = useState([]);
 
   const table = useReactTable({
@@ -81,7 +81,11 @@ const DataTable = ({ columns, data }) => {
       <tbody>
         {table.getRowModel().rows.length > 0 ? (
           table.getRowModel().rows.map(row => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              style={onRowClick ? { cursor: "pointer" } : undefined}
+            >
               {row.getVisibleCells().map(cell => (
                 <td className="row-data" key={cell.id}>
                   {flexRender(

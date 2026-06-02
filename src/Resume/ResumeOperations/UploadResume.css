@@ -1,12 +1,13 @@
 .upload-resume-container {
   padding: 2rem;
-  width: 80vw;
+  width: min(100%, 1200px);
   max-width: 1400px;
   margin: 0 auto;
-  height: calc(100vh - 2rem);
+  min-height: calc(100vh - 2rem);
+  height: auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .upload-resume-container h2 {
@@ -24,10 +25,64 @@
   flex-shrink: 0;
 }
 
+.ats-check-card {
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.ats-check-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.ats-check-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.ats-check-card p,
+.ats-check-card label,
+.ats-check-card strong,
+.ats-check-card small {
+  color: #0f172a;
+}
+
+.ats-check-card textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  resize: vertical;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.ats-check-card textarea::placeholder {
+  color: #64748b;
+}
+
+.upload-ats-result {
+  margin-top: 1rem;
+}
+
+.upload-ats-result h4,
+.upload-ats-result p,
+.upload-ats-result strong {
+  color: #0f172a;
+}
+
 .resume-form-scroll-area {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: visible;
   padding-right: 0.35rem;
 }
 

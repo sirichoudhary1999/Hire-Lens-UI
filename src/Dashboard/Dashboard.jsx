@@ -53,17 +53,17 @@ const Dashboard = () => {
       </div>
       <div className="tile-wrapper">
         <Tile
-          title="Resume"
-          description="Upload, edit, and optimize resumes with AI"
+          title="Resumes"
+          description="View, upload, edit, and optimize resumes with AI"
           icon={<FaFileAlt />}
-          onClick={() => navigate("/resume")}
+          onClick={() => navigate("/resume/view")}
         />
 
         <Tile
           title="Jobs"
-          description="Manage and track job applications"
+          description="Manage and track your job applications"
           icon={<FaBriefcase />}
-          onClick={() => navigate("/jobs/add")}
+          onClick={() => navigate("/jobs/view")}
         />
         <Tile
           title="Job Analytics"

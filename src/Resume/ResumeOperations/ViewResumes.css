@@ -6,15 +6,19 @@
 
 .view-resumes-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   margin-bottom: 2rem;
+  gap: 1rem;
 }
 
 .view-resume-controls {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .resume-search-input {
@@ -33,6 +37,8 @@
 .view-resumes-header h2 {
   font-size: 2rem;
   color: #1e293b;
+  text-align: left;
+  width: auto;
 }
 
 .add-resume-btn {
@@ -48,6 +54,135 @@
 
 .add-resume-btn:hover {
   background-color: #1d4ed8;
+}
+
+.ats-trigger-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.ats-trigger-btn:hover {
+  background-color: #059669;
+}
+
+.ats-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.ats-modal {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+  padding: 1.25rem;
+}
+
+.ats-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ats-modal-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.ats-modal-close {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ats-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.ats-modal-result {
+  margin-top: 1rem;
+}
+
+.ats-modal select,
+.ats-modal textarea {
+  width: 100%;
+}
+
+.view-resumes-container .form-section {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.view-resumes-container .form-section h3,
+.view-resumes-container .form-section label,
+.view-resumes-container .form-section p,
+.view-resumes-container .form-section strong,
+.view-resumes-container .form-section small,
+.view-resumes-container .form-section li {
+  color: #0f172a;
+}
+
+.view-resumes-container .form-section textarea,
+.view-resumes-container .form-section select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.view-resumes-container .form-section textarea::placeholder {
+  color: #64748b;
+}
+
+.view-resumes-container .analysis-result {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  color: #0f172a;
+}
+
+.view-resumes-container .analysis-result h4,
+.view-resumes-container .analysis-result p,
+.view-resumes-container .analysis-result strong {
+  color: #0f172a;
+}
+
+.view-resumes-container .form-section {
+  display: none;
 }
 
 .loading {
@@ -106,6 +241,8 @@
   gap: 0.5rem;
   flex-direction: row;
   flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
 }
 
 .view-resumes-container .action-btn {
@@ -171,19 +308,20 @@
   justify-content: center;
 }
 
-.nav-btn {
+.footer-actions .nav-btn {
   border: none;
   border-radius: 8px;
-  min-width: 140px;
-  min-height: 44px;
-  padding: 0.75rem 1.25rem;
+  width: 120px;
+  min-height: 40px;
+  padding: 0.6rem 0.9rem;
   color: white;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
 }
 
 .home-btn {
@@ -204,9 +342,7 @@
 
 @media (max-width: 768px) {
   .view-resumes-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .view-resume-controls {
@@ -215,9 +351,19 @@
     align-items: stretch;
   }
 
+  .ats-trigger-btn,
+  .add-resume-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .resume-search-input {
     min-width: 0;
     width: 100%;
+  }
+
+  .ats-modal-actions {
+    flex-direction: column-reverse;
   }
 
   .view-resumes-container .action-buttons {
@@ -228,7 +374,8 @@
     justify-content: stretch;
   }
 
-  .nav-btn {
+  .footer-actions .nav-btn {
+    width: 100%;
     flex: 1;
   }
 }

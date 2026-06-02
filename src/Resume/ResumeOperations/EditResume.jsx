@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_BASE } from '../../utils/api';
+
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import {
@@ -16,8 +17,6 @@ import {
   textToList
 } from './resumeFormatConfig';
 import './EditResume.css';
-
-const API_BASE = 'http://127.0.0.1:5000';
 
 const EditResume = () => {
   const createEmptyExperience = () => ({
@@ -87,6 +86,55 @@ const EditResume = () => {
       return true;
     });
   }, [activeDefinition]);
+
+  const derivedPersonalFields = useMemo(() => {
+    const reservedKeys = new Set(['resume_format', 'custom_field_defs', 'custom_fields']);
+    const fields = [...(activeDefinition.personalFields || [])];
+    const knownKeys = new Set(fields.map((field) => field.key));
+
+    Object.entries(resumeData.personal_info || {}).forEach(([key, value]) => {
+      if (reservedKeys.has(key) || knownKeys.has(key) || value == null) {
+        return;
+      }
+
+      const label = key
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+
+      fields.push({
+        key,
+        label,
+        type: typeof value === 'string' && value.length > 120 ? 'textarea' : 'text',
+        rows: 4,
+        placeholder: `Enter ${label.toLowerCase()}`
+      });
+    });
+
+    return fields;
+  }, [activeDefinition.personalFields, resumeData.personal_info]);
+
+  const derivedSkillFields = useMemo(() => {
+    const fields = [...(activeDefinition.skillFields || [])];
+    const knownKeys = new Set(fields.map((field) => field.key));
+
+    Object.entries(resumeData.skills || {}).forEach(([key, value]) => {
+      if (knownKeys.has(key) || value == null) {
+        return;
+      }
+
+      const label = key
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+
+      fields.push({
+        key,
+        label,
+        placeholder: `${label} 1, ${label} 2`
+      });
+    });
+
+    return fields;
+  }, [activeDefinition.skillFields, resumeData.skills]);
 
   useEffect(() => {
     fetchResume();
@@ -182,56 +230,15 @@ const EditResume = () => {
     setCustomFieldDefs(defs);
   };
 
-  const restoreDraftIfExists = async (serverResume) => {
-    const savedDraft = localStorage.getItem(`resume_edit_draft_${resumeId}`);
-    if (!savedDraft) {
-      applyResumeToState(serverResume);
-      return;
-    }
-
-    const shouldRestore = await showConfirm('Autosaved edit draft found. Do you want to restore it?', {
-      title: 'Restore Draft',
-      confirmText: 'Restore'
-    });
-    if (!shouldRestore) {
-      applyResumeToState(serverResume);
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(savedDraft);
-      setSelectedFormat(normalizeResumeFormat(parsed.selectedFormat || serverResume.personal_info?.resume_format));
-      setResumeData(parsed.resumeData || serverResume);
-      setSkillInputs(parsed.skillInputs || {
-        technical: '',
-        soft: '',
-        languages: '',
-        tools: '',
-        keywords: ''
-      });
-      setListInputs(parsed.listInputs || {
-        experiences: '',
-        education: '',
-        projects: '',
-        certifications: ''
-      });
-      setCustomFieldDefs(parsed.customFieldDefs || []);
-      setAutosaveNotice('Recovered your autosaved draft.');
-    } catch (error) {
-      console.error('Failed to parse edit draft:', error);
-      applyResumeToState(serverResume);
-    }
-  };
-
   const fetchResume = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/resume/${resumeId}`, {
+      const response = await api.get(`${API_BASE}/resume/${resumeId}`, {
         headers: getAuthHeaders()
       });
 
       if (response.data.meta.success) {
         const resume = response.data.data.resume;
-        await restoreDraftIfExists(resume);
+        applyResumeToState(resume);
       }
     } catch (err) {
       console.error('Error fetching resume:', err);
@@ -442,9 +449,9 @@ const EditResume = () => {
       };
 
       const updateRequests = [
-        () => axios.put(`${API_BASE}/resume/update/${resumeId}`, payload, requestOptions),
-        () => axios.put(`${API_BASE}/resume/${resumeId}`, payload, requestOptions),
-        () => axios.patch(`${API_BASE}/resume/${resumeId}`, payload, requestOptions)
+        () => api.put(`${API_BASE}/resume/update/${resumeId}`, payload, requestOptions),
+        () => api.put(`${API_BASE}/resume/${resumeId}`, payload, requestOptions),
+        () => api.patch(`${API_BASE}/resume/${resumeId}`, payload, requestOptions)
       ];
 
       let lastError = null;
@@ -483,6 +490,12 @@ const EditResume = () => {
       return;
     }
 
+    // Keep ATS analysis on custom format to preserve full editable structure.
+    if (selectedFormat !== 'custom') {
+      setSelectedFormat('custom');
+      handlePersonalInfoChange('resume_format', 'custom');
+    }
+
     let applyChanges = false;
     if (permissionMode === 'auto') {
       applyChanges = await showConfirm('Allow automatic updates to your resume based on analysis suggestions?', {
@@ -493,7 +506,7 @@ const EditResume = () => {
 
     setAnalysisLoading(true);
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE}/resume/analyze/${resumeId}`,
         {
           job_description: jobDescription,
@@ -510,6 +523,10 @@ const EditResume = () => {
         setAnalysisResult(data);
 
         if (data.applied_changes && data.resume) {
+          if (!data.resume.personal_info || typeof data.resume.personal_info !== 'object') {
+            data.resume.personal_info = {};
+          }
+          data.resume.personal_info.resume_format = 'custom';
           applyResumeToState(data.resume);
           await showAlert('Analyzer applied changes automatically. Review and save to continue.', 'Analysis Complete');
         } else {
@@ -702,7 +719,7 @@ const EditResume = () => {
 
         <div className="form-section">
           <h3>Personal Information</h3>
-          {activeDefinition.personalFields.map((field) => (
+          {derivedPersonalFields.map((field) => (
             <div key={field.key} className="form-group">
               <label>{field.label}{field.required ? ' *' : ''}</label>
               {renderInputByType(
@@ -716,7 +733,7 @@ const EditResume = () => {
 
         <div className="form-section">
           <h3>Skills</h3>
-          {activeDefinition.skillFields.map((field) => (
+          {derivedSkillFields.map((field) => (
             <div key={field.key} className="form-group">
               <label>{field.label} (comma-separated)</label>
               <input
@@ -886,7 +903,7 @@ const EditResume = () => {
             ))}
         </div>
 
-        {selectedFormat === 'custom' && (
+        {(selectedFormat === 'custom' || customFieldDefs.length > 0) && (
           <div className="form-section">
             <h3>Custom Fields</h3>
             <div className="custom-field-row">
@@ -917,28 +934,6 @@ const EditResume = () => {
           </div>
         )}
 
-        <div className={`resume-preview preview-${selectedFormat}`}>
-          <h3>Live Preview</h3>
-          <h4>{resumeData.title || 'Untitled Resume'}</h4>
-          <p>{resumeData.personal_info?.name || 'Your Name'}</p>
-          <p>
-            {resumeData.personal_info?.email || 'email@example.com'}
-            {resumeData.personal_info?.phone ? ` | ${resumeData.personal_info.phone}` : ''}
-          </p>
-          {resumeData.personal_info?.summary && <p>{resumeData.personal_info.summary}</p>}
-          {Object.values(resumeData.skills || {}).some((arr) => Array.isArray(arr) && arr.length) && (
-            <div>
-              <strong>Skills:</strong>
-              <p>
-                {Object.entries(resumeData.skills)
-                  .filter(([, arr]) => Array.isArray(arr) && arr.length)
-                  .map(([key, arr]) => `${key}: ${arr.join(', ')}`)
-                  .join(' | ')}
-              </p>
-            </div>
-          )}
-        </div>
-
         <div className="form-actions">
           <button
             type="button"
@@ -947,15 +942,15 @@ const EditResume = () => {
           >
             Home
           </button>
-          <button type="submit" className="submit-btn" disabled={saving || analysisLoading}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
           <button
             type="button"
             className="cancel-btn"
             onClick={() => navigate('/resume/view')}
           >
-            Cancel
+            Back to List
+          </button>
+          <button type="submit" className="submit-btn" disabled={saving || analysisLoading}>
+            {saving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>

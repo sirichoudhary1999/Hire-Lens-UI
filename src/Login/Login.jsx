@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../hooks/useConfirmationModal';
@@ -34,7 +34,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValidInputs = email && password && (!isRegister || username)
-    const reuestUrl = isRegister ? "http://127.0.0.1:5000/user/register" : "http://127.0.0.1:5000/user/login";
+    const reuestUrl = isRegister ? "/user/register" : "/user/login";
     let requestPayload = {
       "email": email,
       "password": password,
@@ -47,7 +47,7 @@ const Login = () => {
     }
 
     try {
-      const res = await axios.post(reuestUrl, requestPayload);
+      const res = await api.post(reuestUrl, requestPayload);
       const response = res.data;
       if (response.meta.success) {
         setIsRegister(!isRegister)

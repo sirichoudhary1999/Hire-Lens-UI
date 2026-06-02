@@ -1,6 +1,6 @@
 import "./UserProfile.css";
 import { FaPlus } from "react-icons/fa";
-import axios from "axios";
+import api from '../utils/api';
 import { useEffect, useState } from "react";
 import DataTable from "../Components/DataTable/DataTable";
 import { useNavigate } from "react-router-dom";
@@ -18,8 +18,8 @@ const UserProfile = () => {
       e.preventDefault();
 
       try{
-        const response = await axios.put(
-            `http://127.0.0.1:5000/user/updatePrimaryProfileData/${userId}`,
+        const response = await api.put(
+            `/user/updatePrimaryProfileData/${userId}`,
             basicInfo,
             {
                 headers: {
@@ -52,8 +52,8 @@ const UserProfile = () => {
     };
 
     const fetchBasicInfo = () =>{
-        axios.get(
-            `http://127.0.0.1:5000/user/primaryProfileDatabyId/${userId}`,
+        api.get(
+            `/user/primaryProfileDatabyId/${userId}`,
             {
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -79,8 +79,8 @@ const UserProfile = () => {
 
     const handleSaveSkills = () => {
 
-        axios.put(
-            "http://127.0.0.1:5000/profile/updateSkills",
+        api.put(
+            "/profile/updateSkills",
             {
             skill_name: skills
             },

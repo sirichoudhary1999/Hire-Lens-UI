@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import DataTable from '../../Components/DataTable/DataTable';
-import { FaEdit, FaTrash, FaEye, FaStar, FaRegStar } from 'react-icons/fa';
+import { FaChartBar, FaEdit, FaTrash, FaStar, FaRegStar } from 'react-icons/fa';
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import './ViewResumes.css';
@@ -12,7 +12,11 @@ const ViewResumes = () => {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [settingPrimaryId, setSettingPrimaryId] = useState(null);
-  const [searchText, setSearchText] = useState('');
+  const [selectedResumeId, setSelectedResumeId] = useState('');
+  const [atsJobDescription, setAtsJobDescription] = useState('');
+  const [atsLoading, setAtsLoading] = useState(false);
+  const [atsResult, setAtsResult] = useState(null);
+  const [isAtsModalOpen, setIsAtsModalOpen] = useState(false);
   const { modalState, showAlert, showConfirm, onConfirm, onCancel } = useConfirmationModal();
   const navigate = useNavigate();
 
@@ -23,7 +27,7 @@ const ViewResumes = () => {
   const fetchResumes = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get('http://127.0.0.1:5000/resume/all', {
+      const response = await api.get('/resume/all', {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -31,7 +35,11 @@ const ViewResumes = () => {
       });
 
       if (response.data.meta.success) {
-        setResumes(response.data.data.resumes);
+        const nextResumes = response.data.data.resumes;
+        setResumes(nextResumes);
+        if (!selectedResumeId && nextResumes.length > 0) {
+          setSelectedResumeId(String(nextResumes[0].id));
+        }
       }
     } catch (err) {
       console.error("Error fetching resumes:", err);
@@ -55,14 +63,14 @@ const ViewResumes = () => {
       setDeletingId(resumeId);
       const token = localStorage.getItem("access_token");
       const deleteEndpoints = [
-        `http://127.0.0.1:5000/resume/${resumeId}`,
-        `http://127.0.0.1:5000/resume/deleteResume/${resumeId}`
+        `/resume/${resumeId}`,
+        `/resume/deleteResume/${resumeId}`
       ];
 
       let isDeleted = false;
       for (const endpoint of deleteEndpoints) {
         try {
-          const response = await axios.delete(endpoint, {
+          const response = await api.delete(endpoint, {
             headers: {
               "Authorization": `Bearer ${token}`,
               "Content-Type": "application/json"
@@ -94,23 +102,75 @@ const ViewResumes = () => {
     }
   };
 
-  const handleEdit = (resumeId) => {
-    navigate(`/resume/edit/${resumeId}`);
+  const handleRowClick = (resume) => {
+    navigate(`/resume/view/${resume.id}`);
   };
 
-  // const handleOptimize = (resumeId) => {
-  //   navigate(`/resume/optimize/${resumeId}`);
-  // };
+  const openAtsModal = (resumeIdOverride = '') => {
+    const nextResumeId = resumeIdOverride || selectedResumeId || (resumes[0] ? String(resumes[0].id) : '');
+    setSelectedResumeId(nextResumeId);
+    setIsAtsModalOpen(true);
+  };
 
-  const handleView = (resumeId) => {
-    navigate(`/resume/view/${resumeId}`);
+  const closeAtsModal = () => {
+    if (atsLoading) {
+      return;
+    }
+
+    setIsAtsModalOpen(false);
+  };
+
+  const handleCheckAts = async () => {
+    const resumeId = selectedResumeId;
+
+    if (!resumeId) {
+      await showAlert('Please select a resume to analyze', 'Validation Error');
+      return;
+    }
+
+    setAtsLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await api.post(
+        `/resume/analyze/${resumeId}`,
+        {
+          job_description: atsJobDescription,
+          permission_mode: 'manual',
+          apply_changes: false
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data?.meta?.success) {
+        setAtsResult(response.data.data);
+        await showAlert(
+          `ATS score calculated successfully: ${response.data.data.analysis.ats_score}/100${response.data.data.analysis.analysis_mode === 'generic' ? ' (generic resume readiness score)' : ''}`,
+          'ATS Analysis Complete'
+        );
+        setIsAtsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error checking ATS score:', err);
+      await showAlert(err.response?.data?.meta?.message || 'Failed to calculate ATS score', 'ATS Check Failed');
+    } finally {
+      setAtsLoading(false);
+    }
+  };
+
+  const handleEdit = (resumeId) => {
+    navigate(`/resume/edit/${resumeId}`);
   };
 
   const handleSetPrimary = async (resumeId) => {
     try {
       setSettingPrimaryId(resumeId);
       const token = localStorage.getItem('access_token');
-      const response = await axios.put(`http://127.0.0.1:5000/resume/set-primary/${resumeId}`, {}, {
+      const response = await api.put(`/resume/set-primary/${resumeId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -132,9 +192,7 @@ const ViewResumes = () => {
     }
   };
 
-  const filteredResumes = resumes.filter((resume) =>
-    (resume.title || '').toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredResumes = resumes;
 
   const columns = [
     {
@@ -181,37 +239,32 @@ const ViewResumes = () => {
       cell: ({ row }) => (
         <div className="action-buttons">
           <button
-            className="action-btn view-btn"
-            onClick={() => handleView(row.original.id)}
-            title="View Resume"
-          >
-            <FaEye />
-          </button>
-          <button
             className="action-btn edit-btn"
-            onClick={() => handleEdit(row.original.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(row.original.id);
+            }}
             title="Edit Resume"
           >
             <FaEdit />
           </button>
           <button
             className="action-btn primary-btn"
-            onClick={() => handleSetPrimary(row.original.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSetPrimary(row.original.id);
+            }}
             disabled={settingPrimaryId === row.original.id || row.original.is_primary}
             title={row.original.is_primary ? 'Primary Resume' : 'Set as Primary'}
           >
             {row.original.is_primary ? <FaStar /> : <FaRegStar />}
           </button>
-          {/* <button
-            className="action-btn optimize-btn"
-            onClick={() => handleOptimize(row.original.id)}
-            title="Optimize Resume"
-          >
-            <FaRobot />
-          </button> */}
           <button
             className="action-btn delete-btn"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row.original.id);
+            }}
             disabled={deletingId === row.original.id}
             title="Delete Resume"
           >
@@ -227,18 +280,17 @@ const ViewResumes = () => {
       <div className="view-resumes-header">
         <h2>My Resumes</h2>
         <div className="view-resume-controls">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="resume-search-input"
-            placeholder="Search by resume title"
-          />
           <button
             className="add-resume-btn"
             onClick={() => navigate('/resume/upload')}
           >
             + Upload New Resume
+          </button>
+          <button
+            className="ats-trigger-btn"
+            onClick={() => openAtsModal()}
+          >
+            <FaChartBar /> Check ATS Score
           </button>
         </div>
       </div>
@@ -256,7 +308,7 @@ const ViewResumes = () => {
           </button>
         </div>
       ) : (
-        <DataTable columns={columns} data={filteredResumes} />
+        <DataTable columns={columns} data={filteredResumes} onRowClick={handleRowClick} />
       )}
 
       <div className="footer-actions">
@@ -278,6 +330,73 @@ const ViewResumes = () => {
         onConfirm={onConfirm}
         onCancel={onCancel}
       />
+
+      {isAtsModalOpen && (
+        <div className="ats-modal-overlay" role="presentation" onClick={closeAtsModal}>
+          <div className="ats-modal" role="dialog" aria-modal="true" aria-labelledby="ats-modal-title" onClick={(e) => e.stopPropagation()}>
+            <div className="ats-modal-header">
+              <h3 id="ats-modal-title">Check ATS Score</h3>
+              <button type="button" className="ats-modal-close" onClick={closeAtsModal} disabled={atsLoading}>
+                ×
+              </button>
+            </div>
+
+            <div className="form-group">
+              <label>Select Resume</label>
+              <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}>
+                <option value="">-- Select a Resume --</option>
+                {resumes.map((resume) => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.title} (v{resume.version})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Job Description (optional)</label>
+              <textarea
+                rows="8"
+                value={atsJobDescription}
+                onChange={(e) => setAtsJobDescription(e.target.value)}
+                placeholder="Leave blank for a generic ATS readiness score"
+              />
+            </div>
+
+            <div className="ats-modal-actions">
+              <button type="button" className="secondary-btn" onClick={closeAtsModal} disabled={atsLoading}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="add-resume-btn"
+                onClick={handleCheckAts}
+                disabled={atsLoading || resumes.length === 0}
+              >
+                {atsLoading ? (
+                  <>
+                    <FaChartBar /> Calculating ATS...
+                  </>
+                ) : (
+                  <>
+                    <FaChartBar /> Run ATS Check
+                  </>
+                )}
+              </button>
+            </div>
+
+            {atsResult?.analysis && (
+              <div className="analysis-result ats-modal-result">
+                <h4>ATS Result</h4>
+                <p><strong>ATS Score:</strong> {atsResult.analysis.ats_score}/100 {atsResult.analysis.analysis_mode === 'generic' ? '(generic readiness)' : ''}</p>
+                <p><strong>Missing Skills:</strong> {atsResult.analysis.missing_skills?.join(', ') || 'None detected'}</p>
+                <p><strong>Recommended Keywords:</strong> {atsResult.analysis.recommended_keywords?.join(', ') || 'None'}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

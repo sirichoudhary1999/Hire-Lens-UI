@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FaFileUpload, FaKeyboard } from 'react-icons/fa';
+import api from '../../utils/api';
+import { FaFileUpload, FaKeyboard, FaChartBar } from 'react-icons/fa';
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import {
@@ -41,6 +41,9 @@ const UploadResume = () => {
   const [autosaveNotice, setAutosaveNotice] = useState('');
   const [customFieldName, setCustomFieldName] = useState('');
   const [customFieldType, setCustomFieldType] = useState('text');
+  const [atsJobDescription, setAtsJobDescription] = useState('');
+  const [atsResult, setAtsResult] = useState(null);
+  const [atsLoading, setAtsLoading] = useState(false);
   const { modalState, showAlert, onConfirm, onCancel } = useConfirmationModal();
   const navigate = useNavigate();
 
@@ -149,8 +152,8 @@ const UploadResume = () => {
       formData.append('title', title);
       formData.append('is_primary', isPrimary);
 
-      const response = await axios.post(
-        'http://127.0.0.1:5000/resume/upload',
+      const response = await api.post(
+        '/resume/upload',
         formData,
         {
           headers: {
@@ -161,8 +164,18 @@ const UploadResume = () => {
       );
 
       if (response.data.meta.success) {
-        await showAlert('Resume uploaded successfully!', 'Upload Complete');
-        navigate('/resume/view');
+        const resumeId = response.data?.data?.resume_id;
+        if (resumeId && atsJobDescription.trim()) {
+          const atsData = await runAtsCheck(resumeId);
+          setAtsResult(atsData);
+          await showAlert(
+            `Resume uploaded successfully! ATS score: ${atsData.analysis.ats_score}/100`,
+            'Upload Complete'
+          );
+        } else {
+          await showAlert('Resume uploaded successfully!', 'Upload Complete');
+          navigate('/resume/view');
+        }
       }
     } catch (err) {
       console.error("Error uploading resume:", err);
@@ -375,8 +388,8 @@ const UploadResume = () => {
         }
       };
 
-      const response = await axios.post(
-        'http://127.0.0.1:5000/resume/upload',
+      const response = await api.post(
+        '/resume/upload',
         payload,
         {
           headers: {
@@ -388,8 +401,18 @@ const UploadResume = () => {
 
       if (response.data.meta.success) {
         localStorage.removeItem('resume_create_draft_v1');
-        await showAlert('Resume created successfully!', 'Resume Created');
-        navigate('/resume/view');
+        const resumeId = response.data?.data?.resume_id;
+        if (resumeId && atsJobDescription.trim()) {
+          const atsData = await runAtsCheck(resumeId);
+          setAtsResult(atsData);
+          await showAlert(
+            `Resume created successfully! ATS score: ${atsData.analysis.ats_score}/100`,
+            'Resume Created'
+          );
+        } else {
+          await showAlert('Resume created successfully!', 'Resume Created');
+          navigate('/resume/view');
+        }
       }
     } catch (err) {
       console.error("Error creating resume:", err);
@@ -419,6 +442,35 @@ const UploadResume = () => {
         placeholder={field.placeholder || ''}
       />
     );
+  };
+
+  const runAtsCheck = async (resumeId) => {
+    setAtsLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await api.post(
+        `/resume/analyze/${resumeId}`,
+        {
+          job_description: atsJobDescription,
+          permission_mode: 'manual',
+          apply_changes: false
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data?.meta?.success) {
+        return response.data.data;
+      }
+
+      throw new Error('ATS analysis did not return a successful response');
+    } finally {
+      setAtsLoading(false);
+    }
   };
 
   return (
@@ -465,6 +517,35 @@ const UploadResume = () => {
               required
             />
             {file && <p className="file-name">Selected: {file.name}</p>}
+          </div>
+
+          <div className="ats-check-card">
+            <div className="ats-check-header">
+              <FaChartBar />
+              <h3>ATS Check</h3>
+            </div>
+            <p>Paste a job description here to calculate an ATS score after upload. Leave it blank to only save the resume.</p>
+            <textarea
+              rows="5"
+              value={atsJobDescription}
+              onChange={(e) => setAtsJobDescription(e.target.value)}
+              placeholder="Optional: paste a job description for an ATS comparison"
+            />
+            <small className="helper-text">The score is calculated by the backend analysis endpoint after the resume is saved.</small>
+
+            {atsResult?.analysis && (
+              <div className="analysis-result upload-ats-result">
+                <h4>ATS Result</h4>
+                <p><strong>ATS Score:</strong> {atsResult.analysis.ats_score}/100 {atsResult.analysis.analysis_mode === 'generic' ? '(generic readiness)' : ''}</p>
+                <p><strong>Missing Skills:</strong> {atsResult.analysis.missing_skills?.join(', ') || 'None detected'}</p>
+                <p><strong>Recommended Keywords:</strong> {atsResult.analysis.recommended_keywords?.join(', ') || 'None'}</p>
+                <button type="button" className="secondary-btn" onClick={() => navigate('/resume/view')}>
+                  View Resumes
+                </button>
+              </div>
+            )}
+
+            {atsLoading && <p className="autosave-notice">Running ATS analysis...</p>}
           </div>
 
           <div className="form-group checkbox-group">

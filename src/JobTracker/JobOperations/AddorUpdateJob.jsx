@@ -1,6 +1,6 @@
 import "../JobTracker.css"
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../utils/api';
 import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
@@ -54,9 +54,9 @@ const AddJob = () => {
             setLoading(true);
             const token = localStorage.getItem("access_token");
             const endpoint = editingJob
-                ? `http://127.0.0.1:5000/jobs/updateJob/${editingJob.job_id}`
-                : "http://127.0.0.1:5000/jobs/add";
-            const requestMethod = editingJob ? axios.put : axios.post;
+                ? `/jobs/updateJob/${editingJob.job_id}`
+                : "/jobs/add";
+            const requestMethod = editingJob ? api.put : api.post;
 
             const res = await requestMethod(endpoint, formData, {
                 headers: {

@@ -1,5 +1,5 @@
 import DataTable from "../../Components/DataTable/DataTable";
-import axios from "axios";
+import api from '../../utils/api';
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import "../JobTracker.css"
@@ -31,7 +31,7 @@ const ViewJob = () => {
 
         try {
             const token = localStorage.getItem('access_token');
-            const response = await axios.delete(`http://127.0.0.1:5000/jobs/deleteJob/${jobId}`, {
+            const response = await api.delete(`/jobs/deleteJob/${jobId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -121,7 +121,7 @@ const ViewJob = () => {
             try {
                 setLoading(true);
                 const token = localStorage.getItem('access_token');
-                const response = await axios.get('http://127.0.0.1:5000/jobs/fetchAllJobs', {
+                const response = await api.get('/jobs/fetchAllJobs', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -164,7 +164,6 @@ const ViewJob = () => {
                     </div>
                     <div className="button-group">
                         <button type="button" onClick={() => navigate("/dashboard")}>Home</button>
-                        <button type="button" onClick={() => navigate("/jobs")}>Back</button>
                     </div>
                 </div>
             </div>

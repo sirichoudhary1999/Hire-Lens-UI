@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { FaRobot } from 'react-icons/fa';
 import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
 import { useConfirmationModal } from '../../hooks/useConfirmationModal';
@@ -30,7 +30,7 @@ const OptimizeResume = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get('http://127.0.0.1:5000/resume/all', {
+      const response = await api.get('/resume/all', {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -72,8 +72,8 @@ const OptimizeResume = () => {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.post(
-        `http://127.0.0.1:5000/resume/optimize/${selectedResumeId}`,
+      const response = await api.post(
+        `/resume/optimize/${selectedResumeId}`,
         formData,
         {
           headers: {

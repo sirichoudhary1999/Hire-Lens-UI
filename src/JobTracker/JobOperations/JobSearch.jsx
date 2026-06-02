@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import '../JobTracker.css';
 import './JobSearch.css';
@@ -73,7 +73,7 @@ const JobSearch = () => {
         return;
       }
 
-      const response = await axios.get('http://127.0.0.1:5000/jobs/search-external', {
+      const response = await api.get('/jobs/search-external', {
         params: {
           role,
           company,
