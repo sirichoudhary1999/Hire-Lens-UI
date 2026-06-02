@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Tile from '../Components/Tile/Tile';
-import { FaFileUpload, FaList, FaRobot } from 'react-icons/fa';
+import { FaFileUpload, FaList } from 'react-icons/fa';
 import './Resume.css';
 
 const Resume = () => {
@@ -19,20 +19,20 @@ const Resume = () => {
       description: "View and manage all your resumes",
       icon: <FaList size={40} />,
       onClick: () => navigate('/resume/view')
-    },
-    {
-      title: "Optimize Resume",
-      description: "AI-powered resume optimization for job descriptions",
-      icon: <FaRobot size={40} />,
-      onClick: () => navigate('/resume/optimize')
     }
+    // {
+    //   title: "Optimize Resume",
+    //   description: "AI-powered resume optimization for job descriptions",
+    //   icon: <FaRobot size={40} />,
+    //   onClick: () => navigate('/resume/optimize')
+    // }
   ];
 
   return (
     <div className="resume-container">
       <div className="resume-header">
         <h1>Resume Management</h1>
-        <p>Manage your resumes and optimize them for job applications</p>
+        <p>Manage and edit your resumes for job applications</p>
       </div>
       <div className="resume-tiles">
         {tiles.map((tile, index) => (

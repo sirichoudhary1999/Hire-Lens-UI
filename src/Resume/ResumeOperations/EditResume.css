@@ -1,6 +1,7 @@
 .edit-resume-container {
   padding: 2rem;
-  max-width: 900px;
+  width: 80vw;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -52,6 +53,7 @@
 .form-group input[type="email"],
 .form-group input[type="tel"],
 .form-group input[type="url"],
+.form-group select,
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
@@ -80,6 +82,7 @@
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #2563eb;
@@ -240,4 +243,177 @@
 .extract-btn:disabled {
   background-color: #94a3b8;
   cursor: not-allowed;
+}
+
+.analysis-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.analysis-panel h3 {
+  margin: 0 0 0.75rem 0;
+  color: #1e293b;
+}
+
+.analysis-panel p {
+  color: #475569;
+}
+
+.permission-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.permission-mode label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.analyze-btn {
+  background-color: #0f766e;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.analyze-btn:hover:not(:disabled) {
+  background-color: #115e59;
+}
+
+.analyze-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.analysis-result {
+  margin-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.analysis-result h4 {
+  margin: 0 0 0.75rem 0;
+  color: #0f172a;
+}
+
+.analysis-block {
+  margin-top: 0.75rem;
+}
+
+.analysis-block h5 {
+  margin: 0 0 0.4rem 0;
+  color: #1e293b;
+}
+
+.analysis-block ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #334155;
+}
+
+.helper-text {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.autosave-notice {
+  margin: 0.5rem 0 0;
+  color: #0f766e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.custom-field-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.secondary-btn {
+  border: 1px solid #94a3b8;
+  background: #f8fafc;
+  color: #1e293b;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.secondary-btn:hover {
+  background: #e2e8f0;
+}
+
+.structured-item-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.structured-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.structured-item-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.resume-preview {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+}
+
+.resume-preview h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+}
+
+.resume-preview h4 {
+  margin: 0.3rem 0;
+  color: #0f172a;
+}
+
+.preview-ats {
+  border-color: #0f766e;
+}
+
+.preview-minimal {
+  border-color: #64748b;
+}
+
+.preview-custom {
+  border-color: #7c3aed;
+}
+
+@media (max-width: 768px) {
+  .edit-resume-container {
+    width: 100%;
+  }
+
+  .custom-field-row {
+    grid-template-columns: 1fr;
+  }
 }

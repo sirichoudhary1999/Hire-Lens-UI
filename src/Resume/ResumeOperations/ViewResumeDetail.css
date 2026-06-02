@@ -150,6 +150,20 @@
   background-color: #d97706;
 }
 
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.view-resume-detail-container .action-buttons button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .view-resume-detail-container {
     padding: 1rem;

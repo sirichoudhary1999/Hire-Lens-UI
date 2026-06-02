@@ -3,6 +3,39 @@
     width: 80%;
   }
 
+  .jobtracker-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .jobtracker-heading-block {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .jobtracker-heading {
+    margin: 0;
+    font-size: 2rem;
+    color: #0f172a;
+  }
+
+  .jobtracker-subheading {
+    margin: 8px 0 0;
+    font-size: 1rem;
+    color: #475569;
+  }
+
+  .jobtracker-tile-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+    flex-wrap: nowrap;
+  }
+
   .jobtracker-tile {
     width: 220px;
   }
@@ -106,6 +139,58 @@
     font-size: xx-large;
     color: black;
   }
+
+  .view-job .job-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .view-job .job-stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .view-job .job-stat-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .view-job .job-stat-card h3 {
+    margin: 6px 0 0;
+    color: #0f172a;
+    font-size: 24px;
+  }
+
+  .view-job .job-filter-row {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .view-job .job-search-input,
+  .view-job .job-status-filter {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .view-job .job-search-input:focus,
+  .view-job .job-status-filter:focus {
+    outline: none;
+    border-color: #2563eb;
+  }
+
+  .view-job .job-table-loading {
+    color: #64748b;
+    margin: 16px 0;
+  }
   /* Actions container */
   .view-job .table-actions {
     display: flex;
@@ -148,7 +233,7 @@
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 32px;
 }
 
 .feature-footer-actions button,
@@ -159,4 +244,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .jobtracker-home {
+    justify-content: flex-start;
+    padding-top: 48px;
+  }
+
+  .jobtracker-tile-wrapper {
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+
+  .view-job .job-stats-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .view-job .job-filter-row {
+    grid-template-columns: 1fr;
+  }
 }

@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DataTable from '../../Components/DataTable/DataTable';
-import { FaEdit, FaTrash, FaRobot, FaEye } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaStar, FaRegStar } from 'react-icons/fa';
+import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
+import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import './ViewResumes.css';
 
 const ViewResumes = () => {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [settingPrimaryId, setSettingPrimaryId] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const { modalState, showAlert, showConfirm, onConfirm, onCancel } = useConfirmationModal();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,33 +35,62 @@ const ViewResumes = () => {
       }
     } catch (err) {
       console.error("Error fetching resumes:", err);
-      alert(err.response?.data?.meta?.message || "Failed to fetch resumes");
+      await showAlert(err.response?.data?.meta?.message || 'Failed to fetch resumes', 'Load Failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (resumeId) => {
-    if (!window.confirm("Are you sure you want to delete this resume?")) {
+    const shouldDelete = await showConfirm('Are you sure you want to delete this resume?', {
+      title: 'Delete Resume',
+      confirmText: 'Delete'
+    });
+
+    if (!shouldDelete) {
       return;
     }
 
     try {
+      setDeletingId(resumeId);
       const token = localStorage.getItem("access_token");
-      const response = await axios.delete(`http://127.0.0.1:5000/resume/${resumeId}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      const deleteEndpoints = [
+        `http://127.0.0.1:5000/resume/${resumeId}`,
+        `http://127.0.0.1:5000/resume/deleteResume/${resumeId}`
+      ];
 
-      if (response.data.meta.success) {
-        alert("Resume deleted successfully");
-        fetchResumes(); // Refresh list
+      let isDeleted = false;
+      for (const endpoint of deleteEndpoints) {
+        try {
+          const response = await axios.delete(endpoint, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+
+          if (response.data?.meta?.success) {
+            isDeleted = true;
+            break;
+          }
+        } catch (deleteError) {
+          if (![404, 405].includes(deleteError?.response?.status)) {
+            throw deleteError;
+          }
+        }
+      }
+
+      if (isDeleted) {
+        await showAlert('Resume deleted successfully', 'Deleted');
+        setResumes((prev) => prev.filter((resume) => resume.id !== resumeId));
+      } else {
+        throw new Error("Delete endpoint unavailable");
       }
     } catch (err) {
       console.error("Error deleting resume:", err);
-      alert(err.response?.data?.meta?.message || "Failed to delete resume");
+      await showAlert(err.response?.data?.meta?.message || 'Failed to delete resume', 'Delete Failed');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -63,13 +98,43 @@ const ViewResumes = () => {
     navigate(`/resume/edit/${resumeId}`);
   };
 
-  const handleOptimize = (resumeId) => {
-    navigate(`/resume/optimize/${resumeId}`);
-  };
+  // const handleOptimize = (resumeId) => {
+  //   navigate(`/resume/optimize/${resumeId}`);
+  // };
 
   const handleView = (resumeId) => {
     navigate(`/resume/view/${resumeId}`);
   };
+
+  const handleSetPrimary = async (resumeId) => {
+    try {
+      setSettingPrimaryId(resumeId);
+      const token = localStorage.getItem('access_token');
+      const response = await axios.put(`http://127.0.0.1:5000/resume/set-primary/${resumeId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data?.meta?.success) {
+        setResumes((prev) => prev.map((resume) => ({
+          ...resume,
+          is_primary: resume.id === resumeId
+        })));
+        await showAlert('Primary resume updated successfully', 'Primary Updated');
+      }
+    } catch (err) {
+      console.error('Error setting primary resume:', err);
+      await showAlert(err.response?.data?.meta?.message || 'Failed to update primary resume', 'Update Failed');
+    } finally {
+      setSettingPrimaryId(null);
+    }
+  };
+
+  const filteredResumes = resumes.filter((resume) =>
+    (resume.title || '').toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns = [
     {
@@ -130,15 +195,24 @@ const ViewResumes = () => {
             <FaEdit />
           </button>
           <button
+            className="action-btn primary-btn"
+            onClick={() => handleSetPrimary(row.original.id)}
+            disabled={settingPrimaryId === row.original.id || row.original.is_primary}
+            title={row.original.is_primary ? 'Primary Resume' : 'Set as Primary'}
+          >
+            {row.original.is_primary ? <FaStar /> : <FaRegStar />}
+          </button>
+          {/* <button
             className="action-btn optimize-btn"
             onClick={() => handleOptimize(row.original.id)}
             title="Optimize Resume"
           >
             <FaRobot />
-          </button>
+          </button> */}
           <button
             className="action-btn delete-btn"
             onClick={() => handleDelete(row.original.id)}
+            disabled={deletingId === row.original.id}
             title="Delete Resume"
           >
             <FaTrash />
@@ -152,17 +226,26 @@ const ViewResumes = () => {
     <div className="view-resumes-container">
       <div className="view-resumes-header">
         <h2>My Resumes</h2>
-        <button
-          className="add-resume-btn"
-          onClick={() => navigate('/resume/upload')}
-        >
-          + Upload New Resume
-        </button>
+        <div className="view-resume-controls">
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="resume-search-input"
+            placeholder="Search by resume title"
+          />
+          <button
+            className="add-resume-btn"
+            onClick={() => navigate('/resume/upload')}
+          >
+            + Upload New Resume
+          </button>
+        </div>
       </div>
 
       {loading ? (
         <div className="loading">Loading resumes...</div>
-      ) : resumes.length === 0 ? (
+      ) : filteredResumes.length === 0 ? (
         <div className="no-resumes">
           <p>No resumes found. Upload your first resume to get started!</p>
           <button
@@ -173,7 +256,7 @@ const ViewResumes = () => {
           </button>
         </div>
       ) : (
-        <DataTable columns={columns} data={resumes} />
+        <DataTable columns={columns} data={filteredResumes} />
       )}
 
       <div className="footer-actions">
@@ -184,6 +267,17 @@ const ViewResumes = () => {
           Cancel
         </button>
       </div>
+
+      <ConfirmationModal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText={modalState.confirmText}
+        cancelText={modalState.cancelText}
+        showCancel={modalState.showCancel}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
     </div>
   );
 };

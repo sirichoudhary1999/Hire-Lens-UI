@@ -6,7 +6,11 @@ const JobTracker = () => {
       const navigate = useNavigate();
 
     return (
-        <div className="jobtracker-container">
+        <div className="jobtracker-container jobtracker-home">
+            <div className="jobtracker-heading-block">
+                <h2 className="jobtracker-heading">Job Application Management</h2>
+                <p className="jobtracker-subheading">Choose an option to manage your applications</p>
+            </div>
             <div className="jobtracker-tile-wrapper">
                     <Tile
                         title="Jobs"

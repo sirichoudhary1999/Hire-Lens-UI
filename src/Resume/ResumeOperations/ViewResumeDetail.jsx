@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
+import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import './ViewResumeDetail.css';
 
 const API_BASE = 'http://127.0.0.1:5000';
@@ -13,6 +15,8 @@ const ViewResumeDetail = () => {
   const [previewLoading, setPreviewLoading] = useState(true);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState('');
   const [previewError, setPreviewError] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const { modalState, showAlert, showConfirm, onConfirm, onCancel } = useConfirmationModal();
 
   useEffect(() => {
     fetchResume();
@@ -57,6 +61,7 @@ const ViewResumeDetail = () => {
       .map((value) => toAbsoluteUrl(value));
 
     const fallbackUrls = [
+      `${API_BASE}/resume/preview/${resumeId}`,
       `${API_BASE}/resume/download/${resumeId}?inline=true`,
       `${API_BASE}/resume/download/${resumeId}`,
       `${API_BASE}/resume/${resumeId}/download`,
@@ -152,7 +157,7 @@ const ViewResumeDetail = () => {
       }
     } catch (err) {
       console.error("Error fetching resume:", err);
-      alert(err.response?.data?.meta?.message || "Failed to fetch resume");
+      await showAlert(err.response?.data?.meta?.message || 'Failed to fetch resume', 'Load Failed');
       navigate('/resume/view');
     } finally {
       setLoading(false);
@@ -161,7 +166,10 @@ const ViewResumeDetail = () => {
 
   const handleDownloadForEditing = async () => {
     if (!resume.file_path) {
-      alert('This resume has no uploaded file. It was created using manual JSON entry. Use "Edit JSON Data" instead.');
+      await showAlert(
+        'This resume has no uploaded file. It was created using manual JSON entry. Use "Edit JSON Data" instead.',
+        'Download Unavailable'
+      );
       return;
     }
 
@@ -186,7 +194,61 @@ const ViewResumeDetail = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error downloading resume:", err);
-      alert("Failed to download resume file");
+      await showAlert('Failed to download resume file', 'Download Failed');
+    }
+  };
+
+  const handleDeleteResume = async () => {
+    const shouldDelete = await showConfirm('Are you sure you want to delete this resume?', {
+      title: 'Delete Resume',
+      confirmText: 'Delete'
+    });
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      const token = localStorage.getItem('access_token');
+      const id = resume?.id || resumeId;
+      const deleteEndpoints = [
+        `${API_BASE}/resume/${id}`,
+        `${API_BASE}/resume/deleteResume/${id}`
+      ];
+
+      let isDeleted = false;
+      for (const endpoint of deleteEndpoints) {
+        try {
+          const response = await axios.delete(endpoint, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.data?.meta?.success) {
+            isDeleted = true;
+            break;
+          }
+        } catch (deleteError) {
+          if (![404, 405].includes(deleteError?.response?.status)) {
+            throw deleteError;
+          }
+        }
+      }
+
+      if (!isDeleted) {
+        throw new Error('Delete endpoint unavailable');
+      }
+
+      await showAlert('Resume deleted successfully', 'Deleted');
+      navigate('/resume/view');
+    } catch (err) {
+      console.error('Error deleting resume:', err);
+      await showAlert(err.response?.data?.meta?.message || 'Failed to delete resume', 'Delete Failed');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -237,10 +299,24 @@ const ViewResumeDetail = () => {
         <button className="btn-warning" onClick={() => navigate(`/resume/edit/${resume.id || resumeId}`)}>
           Edit JSON Data
         </button>
-        <button className="btn-success" onClick={() => navigate(`/resume/optimize/${resume.id || resumeId}`)}>
-          Optimize Resume
+        <button className="btn-danger" onClick={handleDeleteResume} disabled={deleting}>
+          {deleting ? 'Deleting...' : 'Delete Resume'}
         </button>
+        {/* <button className="btn-success" onClick={() => navigate(`/resume/optimize/${resume.id || resumeId}`)}>
+          Optimize Resume
+        </button> */}
       </div>
+
+      <ConfirmationModal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText={modalState.confirmText}
+        cancelText={modalState.cancelText}
+        showCancel={modalState.showCancel}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
     </div>
   );
 };

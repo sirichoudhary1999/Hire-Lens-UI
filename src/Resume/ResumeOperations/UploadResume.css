@@ -1,7 +1,12 @@
 .upload-resume-container {
   padding: 2rem;
-  max-width: 900px;
+  width: 80vw;
+  max-width: 1400px;
   margin: 0 auto;
+  height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .upload-resume-container h2 {
@@ -14,8 +19,16 @@
 .mode-selector {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.resume-form-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.35rem;
 }
 
 .mode-btn {
@@ -79,6 +92,7 @@
 .form-group input[type="tel"],
 .form-group input[type="url"],
 .form-group input[type="file"],
+.form-group select,
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
@@ -89,6 +103,7 @@
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #2563eb;
@@ -131,17 +146,106 @@
   margin-bottom: 1.5rem;
 }
 
+.helper-text {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.autosave-notice {
+  margin: 0.5rem 0 0;
+  color: #0f766e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.custom-field-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.secondary-btn {
+  border: 1px solid #94a3b8;
+  background: #f8fafc;
+  color: #1e293b;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.secondary-btn:hover {
+  background: #e2e8f0;
+}
+
+.structured-item-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.structured-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.structured-item-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.resume-preview {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+}
+
+.resume-preview h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+}
+
+.resume-preview h4 {
+  margin: 0.3rem 0;
+  color: #0f172a;
+}
+
+.preview-ats {
+  border-color: #0f766e;
+}
+
+.preview-minimal {
+  border-color: #64748b;
+}
+
+.preview-custom {
+  border-color: #7c3aed;
+}
+
 .submit-btn {
-  width: 100%;
+  width: 15%;
   background-color: #2563eb;
   color: white;
   border: none;
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  padding: 1rem 1.25rem;
+  min-height: 56px;
+  border-radius: 10px;
+  font-size: 1.2rem;
   font-weight: 600;
+  letter-spacing: 0.2px;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: block;
+  margin: 0 auto;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -158,6 +262,7 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .nav-btn {
@@ -194,6 +299,17 @@
 }
 
 @media (max-width: 768px) {
+  .upload-resume-container {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .resume-form-scroll-area {
+    overflow-y: visible;
+    padding-right: 0;
+  }
+
   .mode-selector {
     flex-direction: column;
   }
@@ -205,5 +321,9 @@
   .upload-form,
   .json-form {
     padding: 1rem;
+  }
+
+  .custom-field-row {
+    grid-template-columns: 1fr;
   }
 }

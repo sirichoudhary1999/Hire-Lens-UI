@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaRobot } from 'react-icons/fa';
+import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
+import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 import './OptimizeResume.css';
 
 const OptimizeResume = () => {
@@ -11,6 +13,7 @@ const OptimizeResume = () => {
   const [selectedResumeId, setSelectedResumeId] = useState(paramResumeId || '');
   const [loading, setLoading] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const { modalState, showAlert, onConfirm, onCancel } = useConfirmationModal();
 
   const [formData, setFormData] = useState({
     job_description: '',
@@ -39,7 +42,7 @@ const OptimizeResume = () => {
       }
     } catch (err) {
       console.error("Error fetching resumes:", err);
-      alert(err.response?.data?.meta?.message || "Failed to fetch resumes");
+      await showAlert(err.response?.data?.meta?.message || 'Failed to fetch resumes', 'Load Failed');
     } finally {
       setLoading(false);
     }
@@ -56,12 +59,12 @@ const OptimizeResume = () => {
     e.preventDefault();
 
     if (!selectedResumeId) {
-      alert('Please select a resume to optimize');
+      await showAlert('Please select a resume to optimize', 'Validation Error');
       return;
     }
 
     if (!formData.job_description.trim()) {
-      alert('Please enter a job description');
+      await showAlert('Please enter a job description', 'Validation Error');
       return;
     }
 
@@ -82,17 +85,21 @@ const OptimizeResume = () => {
 
       if (response.data.meta.success) {
         const optimizationLog = response.data.data.optimization_log;
-        alert(
+        await showAlert(
           `Resume optimized successfully!\n\n` +
           `AI Provider: ${optimizationLog.ai_provider}\n` +
           `Processing Time: ${optimizationLog.processing_time_ms}ms\n\n` +
-          `${optimizationLog.optimization_notes}`
+          `${optimizationLog.optimization_notes}`,
+          'Optimization Complete'
         );
         navigate('/resume/view');
       }
     } catch (err) {
       console.error("Error optimizing resume:", err);
-      alert(err.response?.data?.meta?.message || "Failed to optimize resume. Make sure AI API keys are configured.");
+      await showAlert(
+        err.response?.data?.meta?.message || 'Failed to optimize resume. Make sure AI API keys are configured.',
+        'Optimization Failed'
+      );
     } finally {
       setOptimizing(false);
     }
@@ -273,6 +280,16 @@ const OptimizeResume = () => {
           )}
         </form>
       )}
+      <ConfirmationModal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText={modalState.confirmText}
+        cancelText={modalState.cancelText}
+        showCancel={modalState.showCancel}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
     </div>
   );
 };

@@ -11,6 +11,25 @@
   margin-bottom: 2rem;
 }
 
+.view-resume-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.resume-search-input {
+  min-width: 230px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.95rem;
+}
+
+.resume-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
 .view-resumes-header h2 {
   font-size: 2rem;
   color: #1e293b;
@@ -136,6 +155,15 @@
   background-color: #dc2626;
 }
 
+.primary-btn {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.primary-btn:hover {
+  background-color: #d97706;
+}
+
 .footer-actions {
   margin-top: 2rem;
   display: flex;
@@ -179,6 +207,17 @@
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
+  }
+
+  .view-resume-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resume-search-input {
+    min-width: 0;
+    width: 100%;
   }
 
   .view-resumes-container .action-buttons {

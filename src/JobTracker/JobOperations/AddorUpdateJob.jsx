@@ -1,10 +1,15 @@
 import "../JobTracker.css"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import ConfirmationModal from '../../Components/ConfirmationModal/ConfirmationModal';
+import { useConfirmationModal } from '../../hooks/useConfirmationModal';
 
 const AddJob = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const editingJob = location.state?.job || null;
+    const prefillJob = location.state?.prefill || null;
     const [formData, setFormData] = useState({
         company: "",
         role: "",
@@ -12,7 +17,30 @@ const AddJob = () => {
         notes: ""
     });
     const [loading, setLoading] = useState(false);
+    const { modalState, showAlert, onConfirm, onCancel } = useConfirmationModal();
     const jobStatuses = ["Applied", "Interview", "Waiting for Response", "Rejected", "Offer"];
+
+    useEffect(() => {
+        if (editingJob) {
+            setFormData({
+                company: editingJob.company || "",
+                role: editingJob.role || "",
+                status: editingJob.status || "applied",
+                notes: editingJob.notes || ""
+            });
+            return;
+        }
+
+        if (prefillJob) {
+            setFormData({
+                company: prefillJob.company || "",
+                role: prefillJob.role || "",
+                status: prefillJob.status || "applied",
+                notes: prefillJob.notes || ""
+            });
+        }
+    }, [editingJob, prefillJob]);
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -25,23 +53,26 @@ const AddJob = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem("access_token");
-            const res = await axios.post(
-                "http://127.0.0.1:5000/jobs/add",
-                formData,
-                {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
+            const endpoint = editingJob
+                ? `http://127.0.0.1:5000/jobs/updateJob/${editingJob.job_id}`
+                : "http://127.0.0.1:5000/jobs/add";
+            const requestMethod = editingJob ? axios.put : axios.post;
+
+            const res = await requestMethod(endpoint, formData, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
                 }
-            );
+            });
+
             if (res.data.meta.success) { 
+                await showAlert(editingJob ? "Job updated successfully" : "Job added successfully", "Success");
                 navigate("/jobs/view");
             }
         } catch (err) {
             console.error(err);
             console.error("ERROR:", err.response?.data);
-            alert(err.response?.data?.msg || "Something went wrong!");
+            await showAlert(err.response?.data?.msg || "Something went wrong!", 'Job Save Error');
         } finally {
             setLoading(false);
         }
@@ -49,7 +80,7 @@ const AddJob = () => {
 
     return (
         <div className="add-job-container">
-            <div className="add-job-header"><h2>Add New Job</h2></div>
+            <div className="add-job-header"><h2>{editingJob ? "Update Job" : "Add New Job"}</h2></div>
 
             <form onSubmit={handleSubmit} className="add-job-form">
                 <div className="form-group"><label htmlFor="company">Company Name *</label>
@@ -97,10 +128,20 @@ const AddJob = () => {
                     <button type="button" onClick={() => navigate("/dashboard")} disabled={loading}>Home</button>
                     <button type="button" onClick={()=> navigate("/jobs")} disabled={loading}>Cancel</button>
                     <button type="submit" disabled={loading}>
-                        {loading ? "Adding..." : "Add Job"}
+                        {loading ? (editingJob ? "Updating..." : "Adding...") : (editingJob ? "Update Job" : "Add Job")}
                     </button>
                 </div>
             </form>
+            <ConfirmationModal
+                isOpen={modalState.isOpen}
+                title={modalState.title}
+                message={modalState.message}
+                confirmText={modalState.confirmText}
+                cancelText={modalState.cancelText}
+                showCancel={modalState.showCancel}
+                onConfirm={onConfirm}
+                onCancel={onCancel}
+            />
         </div>
     );
 };

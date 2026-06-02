@@ -1,6 +1,6 @@
 import Tile from "../Components/Tile/Tile";
 import "./Dashboard.css";
-import { FaFileAlt, FaBriefcase, FaUserCircle, FaComments, FaCog, FaSignOutAlt, FaChartBar  } from "react-icons/fa";
+import { FaFileAlt, FaBriefcase, FaUserCircle, FaComments, FaCog, FaSignOutAlt, FaChartBar, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Dropdown from "../Components/Dropdown/Dropdown.jsx";
 import { useState } from "react";
@@ -63,13 +63,19 @@ const Dashboard = () => {
           title="Jobs"
           description="Manage and track job applications"
           icon={<FaBriefcase />}
-          onClick={() => navigate("/jobs/view")}
+          onClick={() => navigate("/jobs/add")}
         />
         <Tile
           title="Job Analytics"
           description="View analytics on your job applications"
           icon={<FaChartBar />}
           onClick={() => navigate("/jobs/analytics")}
+        />
+        <Tile
+          title="Search Jobs"
+          description="Browse jobs from Naukri and LinkedIn"
+          icon={<FaSearch />}
+          onClick={() => navigate('/jobs/search')}
         />
         {/* <Tile
           title="Interview Prep"

@@ -1,6 +1,8 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import ConfirmationModal from '../Components/ConfirmationModal/ConfirmationModal';
+import { useConfirmationModal } from '../hooks/useConfirmationModal';
 import "./Login.css";
 
 const Login = () => {
@@ -12,6 +14,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
+  const { modalState, showAlert, onConfirm, onCancel } = useConfirmationModal();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +31,7 @@ const Login = () => {
     }
   }, [email, username, password, isRegister]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const isValidInputs = email && password && (!isRegister || username)
     const reuestUrl = isRegister ? "http://127.0.0.1:5000/user/register" : "http://127.0.0.1:5000/user/login";
@@ -43,27 +46,23 @@ const Login = () => {
       return;
     }
 
-    axios.post(
-      reuestUrl,
-      requestPayload
-    )
-      .then(res => {
-        let response = res.data;
-        if (response.meta.success) {
-          setIsRegister(!isRegister)
-          navigate('/dashboard')
-          const profilename = response.data.user.username.toUpperCase();
-          localStorage.setItem("user",  JSON.stringify(response.data.user))
-          localStorage.setItem("access_token", response.data.access_token);
-          localStorage.setItem("profilename", profilename);
-        } else {
-          setError(response.meta.message)
-        }
-      })
-      .catch(err => {
-        console.log("error", err)
-        alert(err.response?.data?.msg || "Something went wrong!");
-      })
+    try {
+      const res = await axios.post(reuestUrl, requestPayload);
+      const response = res.data;
+      if (response.meta.success) {
+        setIsRegister(!isRegister)
+        navigate('/dashboard')
+        const profilename = response.data.user.username.toUpperCase();
+        localStorage.setItem("user", JSON.stringify(response.data.user))
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("profilename", profilename);
+      } else {
+        setError(response.meta.message)
+      }
+    } catch (err) {
+      console.log("error", err)
+      await showAlert(err.response?.data?.msg || "Something went wrong!", 'Login Error');
+    }
 
   };
 
@@ -114,6 +113,16 @@ const Login = () => {
         {error && <p className="login-error">{error}</p>}
         <p className='register-login-link' onClick={handleRegister}>{isRegister ? "Login here" : "Register here"}</p>
       </form>
+      <ConfirmationModal
+        isOpen={modalState.isOpen}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText={modalState.confirmText}
+        cancelText={modalState.cancelText}
+        showCancel={modalState.showCancel}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
     </div>
   )
 };
